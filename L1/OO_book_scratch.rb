@@ -1,34 +1,34 @@
-class GoodDog
-end
+# class GoodDog
+# end
 
-class HumanBeing
-end
+# class HumanBeing
+# end
 
-sparky = GoodDog.new
+# sparky = GoodDog.new
 
-bob = HumanBeing.new
+# bob = HumanBeing.new
 
-module Speak
-  def speak(sound)
-    puts sound
-  end
-end
+# module Speak
+#   def speak(sound)
+#     puts sound
+#   end
+# end
 
-class GoodDog
-  include Speak
-end
+# class GoodDog
+#   include Speak
+# end
 
-class HumanBeing
-  include Speak
-end
+# class HumanBeing
+#   include Speak
+# end
 
-sparky.speak('meow')
-bob.speak('heh')
+# sparky.speak('meow')
+# bob.speak('heh')
 
-puts "--GoodDog ancestors--"
-puts GoodDog.ancestors
-puts "--HumanBeing ancestors--"
-puts HumanBeing.ancestors
+# puts "--GoodDog ancestors--"
+# puts GoodDog.ancestors
+# puts "--HumanBeing ancestors--"
+# puts HumanBeing.ancestors
 
 
 =begin
@@ -85,7 +85,123 @@ end
 
 jeff = BigGuy.new
 
-jeff.height(6)
+# jeff.height(6)
 
 jeff_upgrade = Careers::Engineer.new
+
+# puts jeff_upgrade.class
+
+# instantiate the object by calling the "new" instance method on the class and 
+# ......
+
+
+module Meow
+  def meow
+    puts "meow"
+  end
+end
+
+class WhiteMouse
+  include Meow
+end
+
+
+stuart = WhiteMouse.new
+
+# stuart.meow
+
+
+
+# a module allows you to expand the functionality of a class; modules must be mixed-into a class to access their functionality
+# you can declare new classes in a module...
+
+
+module GruffMeow
+  def gruff_meow
+    puts "Mrrroowww"
+  end
+end
+
+module CuteMeow
+  def cute_meow
+    puts "Mew"
+  end
+end
+
+module Cats
+  class Calico
+    include GruffMeow
+  end
+  
+  class Tabby
+    include CuteMeow
+  end
+end
+
+calico = Cats::Calico.new
+
+tabby = Cats::Tabby.new
+
+# calico.gruff_meow
+
+# tabby.cute_meow
+
+# p Cats::Tabby.ancestors
+
+# ----------------------------------------------------------------------
+
+
+class GoodDog
+  def initialize(name)
+    @name = name
+  end
+  
+  def get_name
+    @name
+  end
+  
+  def set_name=(name)
+    @name = name
+  end
+  
+  def speak
+    "#{@name} says \"Arf!\""
+  end
+end
+
+sparky = GoodDog.new("Sparky")
+
+puts sparky.speak
+
+puts sparky.get_name
+
+sparky.set_name = "Spartacus"
+
+puts sparky.get_name
+
+# turns into....
+
+class GoodDog
+  def initialize(name)
+    @name = name
+  end
+  
+  def name
+    @name
+  end
+  
+  def name=(x)
+    @name = x
+  end
+  
+  def speak
+    "#{@name} says meow!"
+  end
+end
+
+
+
+
+
+
 
