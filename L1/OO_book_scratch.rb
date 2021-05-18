@@ -215,41 +215,41 @@
 
 # #-----------------------------------------------------
 
-class MyCar
-  attr_accessor :color
-  attr_reader :year
+# class MyCar
+#   attr_accessor :color
+#   attr_reader :year
   
-  def initialize(year, color, model)
-    @year = year
-    @color = color
-    @model = model
-    @speed = 0
-  end
+#   def initialize(year, color, model)
+#     @year = year
+#     @color = color
+#     @model = model
+#     @speed = 0
+#   end
   
-  def speed_up(n)
-    @speed += n
-    puts "Speeding up! Your current speed is #{@speed}."
-  end
+#   def speed_up(n)
+#     @speed += n
+#     puts "Speeding up! Your current speed is #{@speed}."
+#   end
   
-  def slow_down(n)
-    @speed -= n
-    puts "Slowing down! Your current speed is #{@speed}."
-  end
+#   def slow_down(n)
+#     @speed -= n
+#     puts "Slowing down! Your current speed is #{@speed}."
+#   end
   
-  def spray_paint(color)
-    self.color = color
-    puts "Primrose is now #{color}!"
-  end
+#   def spray_paint(color)
+#     self.color = color
+#     puts "Primrose is now #{color}!"
+#   end
   
-  def shut_off
-    @speed = 0
-    puts "Time to take a break! The car is now shut off."
-  end
+#   def shut_off
+#     @speed = 0
+#     puts "Time to take a break! The car is now shut off."
+#   end
 
-  def info
-    "Our car, which is a #{@color} #{@year} #{@model}, has a current speed of #{@speed} MPH."
-  end
-end
+#   def info
+#     "Our car, which is a #{@color} #{@year} #{@model}, has a current speed of #{@speed} MPH."
+#   end
+# end
 
 # primrose = MyCar.new(2012, "Burgundy", "VW Passat")
 
@@ -298,78 +298,131 @@ end
 # puts "#{good_boy}"
 #---------------------------------------
 
-class GoodDog
-  attr_accessor :name, :height, :weight
+# class GoodDog
+#   attr_accessor :name, :height, :weight
 
-  def initialize(n, h, w)
-    self.name   = n
-    self.height = h
-    self.weight = w
-  end
+#   def initialize(n, h, w)
+#     self.name   = n
+#     self.height = h
+#     self.weight = w
+#   end
 
-  def change_info(n, h, w)
-    self.name   = n
-    self.height = h
-    self.weight = w
-  end
+#   def change_info(n, h, w)
+#     self.name   = n
+#     self.height = h
+#     self.weight = w
+#   end
 
-  def info
-    "#{self.name} weighs #{self.weight} and is #{self.height} tall."
-  end
+#   def info
+#     "#{self.name} weighs #{self.weight} and is #{self.height} tall."
+#   end
   
-  def what_is_self
-    self
-  end
-  # puts self
-end
+#   def what_is_self
+#     self
+#   end
+#   # puts self
+# end
 
 
 
 
 
-class MyCar
-  attr_accessor :color, :year, :model
+# class MyCar
+#   attr_accessor :color, :year, :model
   
-  def self.calculate_mileage(miles_traveled, gallons)
-    "The caluculated mileage is #{miles_traveled / gallons} MPG!"
-  end
+#   def self.calculate_mileage(miles_traveled, gallons)
+#     "The caluculated mileage is #{miles_traveled / gallons} MPG!"
+#   end
   
-  def initialize(year, color, model)
-    @year = year
-    @color = color
-    @model = model
-    @speed = 0
-  end
+#   def initialize(year, color, model)
+#     @year = year
+#     @color = color
+#     @model = model
+#     @speed = 0
+#   end
   
-  def speed_up(n)
-    @speed += n
-    puts "Speeding up! Your current speed is #{@speed}."
-  end
+#   def speed_up(n)
+#     @speed += n
+#     puts "Speeding up! Your current speed is #{@speed}."
+#   end
   
-  def slow_down(n)
-    @speed -= n
-    puts "Slowing down! Your current speed is #{@speed}."
-  end
+#   def slow_down(n)
+#     @speed -= n
+#     puts "Slowing down! Your current speed is #{@speed}."
+#   end
   
-  def spray_paint(color)
-    self.color = color
-    puts "Primrose is now #{color}!"
-  end
+#   def spray_paint(color)
+#     self.color = color
+#     puts "Primrose is now #{color}!"
+#   end
   
-  def shut_off
-    @speed = 0
-    puts "Time to take a break! The car is now shut off."
-  end
+#   def shut_off
+#     @speed = 0
+#     puts "Time to take a break! The car is now shut off."
+#   end
 
-  def to_s
-    "This car is a #{color} #{year} #{model}."
-  end
-end
+#   def to_s
+#     "This car is a #{color} #{year} #{model}."
+#   end
+# end
 
-# puts MyCar.calculate_mileage(250, 10)
+# # puts MyCar.calculate_mileage(250, 10)
 
-camry = MyCar.new(2005, "red", "Toyota Camry")
+# camry = MyCar.new(2005, "red", "Toyota Camry")
 
-puts camry
+# puts camry
 
 # 3. change attr_reader to attr_accessor, or manually define a setter method for @name
+
+#-----------------------
+
+# class MyCar
+  
+#   def self.calculate_mileage(tank, miles)
+#     puts "The mileage for this car is #{miles/tank} MPG."
+#   end
+  
+#   def to_s
+#     puts self
+#   end
+# end
+#---------------------------
+
+
+class Animal
+  attr_accessor :name
+  
+  def initialize
+    puts "A new animal has been manifested in this reality."
+  end
+end
+
+class GoodDog < Animal
+  def initialize(color)
+    super
+    @color = color
+  end
+end
+
+class BadDog < Animal
+  def initialize(age, name)
+    super()
+    @age = age
+  end
+end
+
+
+p BadDog.new(2, "bear")
+
+
+
+
+
+
+
+
+
+
+
+
+
