@@ -35,8 +35,8 @@ class Move
 end
 
 class Player
-  attr_accessor :move, :name
-  
+  attr_accessor :move, :name, :score
+
   def initialize
     set_name
     @score = 0
@@ -78,7 +78,9 @@ class Computer < Player
 end
 
 class RPSGame
-  attr_accessor :human, :computer, :winner
+  attr_accessor :human, :computer, :round_winner, :grand_winner
+  
+  MAX_SCORE = 3
 
   def initialize
     @human = Human.new
@@ -99,14 +101,30 @@ class RPSGame
     puts "#{computer.name} chose #{computer.move}."
   end
   
-  def display_winner
+  def find_winner
     if human.move > computer.move
-      puts "#{human.name} won!"
+      self.round_winner = human
     elsif human.move < computer.move
-      puts "#{computer.name} won!"
-    else
-      puts "It's a tie!"
+      self.round_winner = computer
     end
+  end
+    
+  def update_scores
+    self.round_winner.score += 1 unless self.round_winner == nil
+  end
+
+  def display_winner
+    winner = self.round_winner 
+    if winner == nil
+      puts "It's a tie!"
+    else
+      winner.score == MAX_SCORE ? (puts "#{winner.name} won the game! Congratulations, #{winner.name}!") : (puts "#{winner.name} won this round!") 
+    end
+  end
+  
+  def display_scores
+    puts "#{human.name}'s score is #{human.score}."
+    puts "#{computer.name}'s score is #{computer.score}."
   end
 
   def play_again?
@@ -121,14 +139,26 @@ class RPSGame
     return true if answer == 'y'
   end
 
+  def reset_game_state
+    self.round_winner = nil
+    players = [human, computer]
+    if players.any? { |player| player.score == MAX_SCORE }
+      players.each { |player| player.score = 0 }
+    end
+  end
+
   def play
     display_welcome_message
     loop do
       human.choose
       computer.choose
       display_moves
+      find_winner
+      update_scores
       display_winner
+      display_scores
       break unless play_again?
+      reset_game_state
     end
     display_goodbye_message
   end
