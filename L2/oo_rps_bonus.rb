@@ -134,17 +134,65 @@ class Computer < Player
   end
 end
 
+module GameStates
+  attr_accessor :history, :game_over
+  
+  def update_gamestate
+    game_over_check
+    reset_history
+    update_round
+    reset_winner
+    reset_score
+    self.game_over = false if game_over
+  end
+  
+  def game_over_check
+    self.game_over = [human, computer].any? { |player| player.score == MAX_SCORE }
+  end
+  
+  def reset_history
+    if game_over
+      self.history = {}
+    end
+  end
+  
+  def update_round
+    if game_over
+      self.round = 1
+    else
+      self.round += 1
+    end
+  end
+  
+  def reset_winner
+    self.winner = nil
+  end
+  
+  def reset_score
+    players = [human, computer]
+    if game_over
+      players.each { |player| player.score = 0 }
+    end
+  end
+  
+  def gameover_reset
+    self.game_over = false
+  end
+end
+
 class RPSGame
-  attr_accessor :human, :computer, :round, :round_winner, :grand_winner, 
-                :move_history
+  include GameStates
+  
+  attr_accessor :human, :computer, :round, :winner
   
   MAX_SCORE = 3
   
   def display_history
-    if move_history.empty?
-      nil
-    else
-    'something'
+    if !history.empty?
+      puts "Here's a summary of this game's move history!"
+      history.each do |round, moves|
+        puts "#{round}: #{moves}"
+      end
     end
   end
 
@@ -152,14 +200,12 @@ class RPSGame
     @human = Human.new
     @computer = Computer.new
     @winner = nil
+    @history = {}
+    @round = 1
   end
 
   def display_welcome_message
     puts "Welcome to Rock, Paper, Scissors!"
-  end
-
-  def display_goodbye_message
-    puts "Thanks for playing Rock, Paper, Scissors. Good bye!"
   end
 
   def display_moves
@@ -169,18 +215,18 @@ class RPSGame
   
   def find_winner
     if human.move > computer.move
-      self.round_winner = human
+      self.winner = human
     elsif human.move < computer.move
-      self.round_winner = computer
+      self.winner = computer
     end
   end
     
-  def update_scores
-    self.round_winner.score += 1 unless self.round_winner == nil
+  def update_score
+    score += 1 unless self.winner == nil
   end
 
   def display_winner
-    winner = self.round_winner 
+    winner = self.winner 
     if winner == nil
       puts "It's a tie!"
     else
@@ -205,37 +251,8 @@ class RPSGame
     return true if answer == 'y'
   end
   
-  def update_gamestate
-    reset_history
-    update_round
-    reset_winner
-  end
-  
-  def reset_history
-    if max_reached?
-      self.move_history = {}
-    end
-  end
-  
-  def max_reached?
-    players = [human, computer]
-    players.any? { |player| player.score == MAX_SCORE }
-  end
-  
-  def reset_winner
-    self.round_winner = nil
-    players = [human, computer]
-    if max_reached?
-      players.each { |player| player.score = 0 }
-    end
-  end
-  
-  def increment_round
-    if max_reached?
-      self.round = 0
-    else
-      self.round += 1
-    end
+  def display_goodbye_message
+    puts "Thanks for playing Rock, Paper, Scissors. Good bye!"
   end
 
   def play
