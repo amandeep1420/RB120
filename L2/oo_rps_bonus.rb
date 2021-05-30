@@ -1,5 +1,5 @@
 class Move
-  VALUES = %w(rock paper scissors)
+  VALUES = %w(rock paper scissors lizard spock)
 
   def initialize(value)
     @value = value
@@ -16,21 +16,77 @@ class Move
   def paper?
     @value == 'paper'
   end
-
-  def >(other_move)
-    (rock? && other_move.scissors?) ||
-      (paper? && other_move.rock?) ||
-      (scissors? && other_move.paper?)
+  
+  def lizard?
+    @value == 'lizard'
+  end
+  
+  def spock?
+    @value == 'spock'
   end
 
-  def <(other_move)
-    (rock? && other_move.paper?) ||
-      (paper? && other_move.scissors?) ||
-      (scissors? && other_move.rock?)
+  def self.create_subclass_object(string)
+    case string
+    when 'rock'     then Rock.new(string)
+    when 'paper'    then Paper.new(string)
+    when 'scissors' then Scissors.new(string)
+    when 'lizard'   then Lizard.new(string)
+    when 'spock'    then Spock.new(string)
+    end
   end
 
   def to_s
     @value
+  end
+end
+
+class Rock < Move
+  def >(other_move)
+    other_move.scissors? || other_move.lizard?
+  end
+  
+  def <(other_move)
+    other_move.paper? || other_move.spock?
+  end
+end
+
+class Paper < Move
+  def >(other_move)
+    other_move.rock? || other_move.spock?
+  end
+  
+  def <(other_move)
+    other_move.scissors? || other_move.lizard?
+  end
+end
+  
+class Scissors < Move
+  def >(other_move)
+    other_move.paper? || other_move.lizard?
+  end
+  
+  def <(other_move)
+    other_move.rock? || other_move.spock?
+  end
+end
+  
+class Lizard < Move
+  def >(other_move)
+    other_move.spock? || other_move.paper?
+  end
+  
+  def <(other_move)
+    other_move.scissors? || other_move.rock?
+  end
+end
+  
+class Spock < Move
+  def >(other_move)
+    other_move.rock? || other_move.scissors?
+  end
+  
+  def <(other_move)
+    other_move.lizard? || other_move.paper?
   end
 end
 
@@ -58,12 +114,12 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts "Please choose rock, paper, or scissors:"
+      puts "Please choose rock, paper, scissors, lizard, or spock:"
       choice = gets.chomp
       break if Move::VALUES.include?(choice)
       puts "Sorry, invalid input."
     end
-    self.move = Move.new(choice)
+    self.move = Move.create_subclass_object(choice)
   end
 end
 
@@ -73,14 +129,24 @@ class Computer < Player
   end
 
   def choose
-    self.move = Move.new(Move::VALUES.sample)
+    move = Move::VALUES.sample
+    self.move = Move.create_subclass_object(move)
   end
 end
 
 class RPSGame
-  attr_accessor :human, :computer, :round_winner, :grand_winner
+  attr_accessor :human, :computer, :round, :round_winner, :grand_winner, 
+                :move_history
   
   MAX_SCORE = 3
+  
+  def display_history
+    if move_history.empty?
+      nil
+    else
+    'something'
+    end
+  end
 
   def initialize
     @human = Human.new
@@ -138,27 +204,54 @@ class RPSGame
     return false if answer == 'n'
     return true if answer == 'y'
   end
-
-  def reset_game_state
+  
+  def update_gamestate
+    reset_history
+    update_round
+    reset_winner
+  end
+  
+  def reset_history
+    if max_reached?
+      self.move_history = {}
+    end
+  end
+  
+  def max_reached?
+    players = [human, computer]
+    players.any? { |player| player.score == MAX_SCORE }
+  end
+  
+  def reset_winner
     self.round_winner = nil
     players = [human, computer]
-    if players.any? { |player| player.score == MAX_SCORE }
+    if max_reached?
       players.each { |player| player.score = 0 }
+    end
+  end
+  
+  def increment_round
+    if max_reached?
+      self.round = 0
+    else
+      self.round += 1
     end
   end
 
   def play
     display_welcome_message
     loop do
+      update_gamestate
+      display_history
       human.choose
       computer.choose
       display_moves
+      update_history
       find_winner
-      update_scores
       display_winner
+      update_scores
       display_scores
       break unless play_again?
-      reset_game_state
     end
     display_goodbye_message
   end
