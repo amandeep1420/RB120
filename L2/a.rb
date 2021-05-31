@@ -1,7 +1,17 @@
-class Person
-  def self.speak
-    "#{self} moo!"
+module Dog
+  class Doggy;end
+end
+
+class Cat
+  attr_reader :name
+  
+  include Dog
+  
+  def initialize
+    Dog::Doggy.new
   end
 end
 
-p Person.speak
+me = Cat.new
+
+puts me
