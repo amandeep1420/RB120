@@ -29,6 +29,10 @@ end
 module Inputtable
   private
 
+  YES = %w(y yes)
+
+  YESNO = %w(y yes n no)
+
   def yes_no_loop
     answer = nil
     loop do
@@ -40,11 +44,11 @@ module Inputtable
   end
 
   def yn?(input)
-    %w(y n).include?(input)
+    YESNO.include?(input)
   end
 
   def yes?(input)
-    input == 'y'
+    YES.include?(input)
   end
 
   def format_input(input)
