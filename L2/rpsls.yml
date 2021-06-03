@@ -1,17 +1,31 @@
 enter: "Press ENTER to continue"
 welcome: "Welcome to Rock-Paper-Scissors-Lizard-Spock!"
-wins_needed: "round wins are needed in order to win the game and become the ultimate champion. Good luck!"
+view_rules: "Would you like to view the rules of the game? (y/n)"
+rules: |
+  The rules are as follows:
+  -------------------------------
+  Rock beats Lizard and Scissors
+  Paper beats Rock and Spock
+  Scissors beats Paper and Lizard
+  Lizard beats Spock and Paper
+  Spock beats Rock and Scissors
+  -------------------------------
+good_luck: "Good luck!"
+no_time: "No time to waste, then - let's begin!"
+wins_needed: >
+  round wins are needed in order to win the game and become the ultimate
+  champion. Good luck!"
 name: "What's your name?"
 sorry_name: "Sorry, must enter a name."
 history_divider: "-------------------------------------------------"
 history: "Here's a summary of this game's move history so far! Learn from the past!"
 make_choice: "Please choose rock/r, paper/p, scissors/s, lizard/l, or spock/v:"
-invalid: "Sorry, invalid input."
+invalid: "Invalid input. Please try again."
 move_divider: "---------------------------------"
 tie: "It's a tie!"
 won_round: " won this round! Way to go!"
 congrats: " won the game! The ultimate champion has been found! Congratulations, "
 new:  "Would you like to start a new game? (y/n)"
-again: "Would you like to play again? (y/n)"
+again: "Would you like to play another round? (y/n)"
 sorry_yn: "Invalid input; please enter a 'y' for yes or an 'n' for no."
-thanks: "Thanks for playing Rock, Paper, Scissors. Goodbye!"
+thanks: "Thanks for playing Rock-Paper-Scissors-Lizard-Spock. Goodbye!"

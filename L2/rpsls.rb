@@ -1,13 +1,17 @@
 require 'yaml'
-RPS = YAML.load_file('rps_yaml.yml')
+RPS = YAML.load_file('rpsls.yml')
 
 module Promptable
+  private
+
   def prompt(message)
     puts "=> #{message}"
   end
 end
 
 module Continuable
+  private
+
   def continue
     prompt RPS['enter']
     STDIN.gets
@@ -15,8 +19,36 @@ module Continuable
 end
 
 module Clearable
+  private
+
   def clear_screen
     system('clear')
+  end
+end
+
+module Inputtable
+  private
+
+  def yes_no_loop
+    answer = nil
+    loop do
+      answer = format_input(gets)
+      break if yn?(answer)
+      prompt RPS['sorry_yn']
+    end
+    answer
+  end
+
+  def yn?(input)
+    %w(y n).include?(input)
+  end
+
+  def yes?(input)
+    input == 'y'
+  end
+
+  def format_input(input)
+    input.chomp.downcase.strip
   end
 end
 
@@ -49,10 +81,6 @@ class Move
     end
   end
 
-  def initialize(value)
-    @value = value
-  end
-
   def scissors?
     @value == 'scissors'
   end
@@ -76,15 +104,17 @@ class Move
   def to_s
     @value
   end
+
+  private
+
+  def initialize(value)
+    @value = value
+  end
 end
 
 class Rock < Move
   def >(other_move)
     other_move.scissors? || other_move.lizard?
-  end
-
-  def <(other_move)
-    other_move.paper? || other_move.spock?
   end
 end
 
@@ -92,19 +122,11 @@ class Paper < Move
   def >(other_move)
     other_move.rock? || other_move.spock?
   end
-
-  def <(other_move)
-    other_move.scissors? || other_move.lizard?
-  end
 end
 
 class Scissors < Move
   def >(other_move)
     other_move.paper? || other_move.lizard?
-  end
-
-  def <(other_move)
-    other_move.rock? || other_move.spock?
   end
 end
 
@@ -112,23 +134,16 @@ class Lizard < Move
   def >(other_move)
     other_move.spock? || other_move.paper?
   end
-
-  def <(other_move)
-    other_move.scissors? || other_move.rock?
-  end
 end
 
 class Spock < Move
   def >(other_move)
     other_move.rock? || other_move.scissors?
   end
-
-  def <(other_move)
-    other_move.lizard? || other_move.paper?
-  end
 end
 
 class Player
+  include Inputtable
   include Promptable
 
   attr_accessor :move, :name, :score
@@ -148,7 +163,7 @@ class Human < Player
     choice = nil
     loop do
       prompt RPS['make_choice']
-      choice = gets.chomp
+      choice = format_input(gets)
       break if Move.valid?(choice)
       prompt RPS['invalid']
     end
@@ -162,7 +177,7 @@ class Human < Player
     n = ''
     loop do
       prompt RPS['name']
-      n = gets.chomp
+      n = gets.chomp.strip
       break unless n.empty?
       prompt RPS['sorry_name']
     end
@@ -250,9 +265,10 @@ class Exo < Computer
 end
 
 class RPSGame
-  include Promptable
   include Clearable
   include Continuable
+  include Inputtable
+  include Promptable
 
   attr_accessor :human, :computer, :round, :winner, :history, :game_won
 
@@ -269,12 +285,12 @@ class RPSGame
   end
 
   def play
-    display_welcome_message
+    display_welcome_messages
     loop do
       update_gamestate
       display_history
       choose_moves
-      update_scores
+      process_moves
       display_outcomes
       break unless play_again?
     end
@@ -283,8 +299,23 @@ class RPSGame
 
   private
 
-  def display_welcome_message
+  def display_welcome_messages
     prompt "#{RPS['welcome']} #{MAX_SCORE} #{RPS['wins_needed']}"
+    prompt RPS['view_rules']
+    answer = yes_no_loop
+
+    if yes?(answer)
+      view_rules
+    else
+      prompt RPS['no_time']
+      continue
+    end
+  end
+
+  def view_rules
+    clear_screen
+    prompt RPS['rules']
+    prompt RPS['good_luck']
     continue
   end
 
@@ -347,18 +378,22 @@ class RPSGame
     human.choose
     computer.choose
     update_history
-    find_winner
-    game_won_check
   end
 
   def update_history
     history[self.round] = [human.move_summary, computer.move_summary]
   end
 
+  def process_moves
+    find_winner
+    update_scores
+    game_won_check
+  end
+
   def find_winner
     if human.move > computer.move
       self.winner = human
-    elsif human.move < computer.move
+    elsif computer.move > human.move
       self.winner = computer
     end
   end
@@ -397,14 +432,8 @@ class RPSGame
   end
 
   def play_again?
-    answer = nil
-    loop do
-      game_won ? (prompt RPS['new']) : (prompt RPS['again'])
-      answer = gets.chomp.downcase
-      break if %w(y n).include?(answer)
-      prompt RPS['sorry_yn']
-    end
-    answer == 'y'
+    game_won ? (prompt RPS['new']) : (prompt RPS['again'])
+    yes?(yes_no_loop)
   end
 
   def display_goodbye_message
