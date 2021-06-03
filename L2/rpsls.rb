@@ -282,9 +282,9 @@ class RPSGame
     clear_screen
     @human = Human.new
     @computer = Computer.generate_personality
+    @round = 0
     @winner = nil
     @history = {}
-    @round = 0
     @game_won = false
   end
 
