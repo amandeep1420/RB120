@@ -61,6 +61,7 @@ class Move
   VALUES_ABBV = %(r p s l v)
 
   def self.valid?(choice)
+    return false if choice.empty?
     Move::VALUES.include?(choice) || Move::VALUES_ABBV.include?(choice)
   end
 
@@ -84,30 +85,18 @@ class Move
     when 'spock'    then Spock.new(choice)
     end
   end
-
-  def scissors?
-    @value == 'scissors'
-  end
-
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def lizard?
-    @value == 'lizard'
-  end
-
-  def spock?
-    @value == 'spock'
+  
+  def >(other_move)
+    @beats.include?(other_move.value)
   end
 
   def to_s
     @value
   end
+  
+  protected
+  
+  attr_reader :value
 
   private
 
@@ -117,32 +106,37 @@ class Move
 end
 
 class Rock < Move
-  def >(other_move)
-    other_move.scissors? || other_move.lizard?
+  def initialize(value)
+    super
+    @beats = ['lizard', 'scissors']
   end
 end
 
 class Paper < Move
-  def >(other_move)
-    other_move.rock? || other_move.spock?
+  def initialize(value)
+    super
+    @beats = ['rock', 'spock']
   end
 end
 
 class Scissors < Move
-  def >(other_move)
-    other_move.paper? || other_move.lizard?
+  def initialize(value)
+    super
+    @beats = ['paper', 'lizard']
   end
 end
 
 class Lizard < Move
-  def >(other_move)
-    other_move.spock? || other_move.paper?
+  def initialize(value)
+    super
+    @beats = ['spock', 'paper']
   end
 end
 
 class Spock < Move
-  def >(other_move)
-    other_move.rock? || other_move.scissors?
+  def initialize(value)
+    super
+    @beats = ['rock', 'scissors']
   end
 end
 
@@ -274,8 +268,6 @@ class RPSGame
   include Inputtable
   include Promptable
 
-  attr_accessor :human, :computer, :round, :winner, :history, :game_won
-
   MAX_SCORE = 2
 
   def initialize
@@ -302,6 +294,8 @@ class RPSGame
   end
 
   private
+  
+  attr_accessor :human, :computer, :round, :winner, :history, :game_won
 
   def display_welcome_messages
     prompt "#{RPS['welcome']} #{MAX_SCORE} #{RPS['wins_needed']}"
@@ -443,7 +437,6 @@ class RPSGame
   def display_goodbye_message
     clear_screen
     prompt RPS['thanks']
-    continue
   end
 end
 
