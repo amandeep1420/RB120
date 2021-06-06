@@ -1,14 +1,25 @@
-a = 'cat'
-
-b = 5
-
-c = nil
-
-begin
-  a + b
-  c + a
-rescue TypeError
-  puts "that's not right!"
-rescue NoMethodError
-  puts "did c get reached?"
+class Cat
+  def initialize
+    @species = 'cat'
+    @legs = 4
+    @eyes = 2
+    @temperament = 'butthole'
+    @food = 'fishies'
+  end
+  
+  def food=(item)
+    @food = item
+  end
+  
+  def food
+    @food
+  end
 end
+
+toby = Cat.new
+
+p toby.food
+
+toby.food = 'treats'
+
+p toby.food
