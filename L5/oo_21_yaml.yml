@@ -1,0 +1,6 @@
+greeting: "Welcome to 21!"
+first_deal: "Initial hands have been dealt!"
+human_hand: "You have"
+revealed_card: "The revealed card from The Dealer's hand is"
+divider: "----------------------------------------"
+continue: "Press ENTER to continue"
