@@ -44,8 +44,29 @@ A
     > display deal results
       - show both cards in player hand
       - show one card from dealer hand
-    ***Do I create a separate Handable module? Or do I keep the logic in the Player class?***
-    
+      *Do I create a separate Handable module? Or do I keep the 
+       logic in the Player class?*
+      - moved to Handable module; module will handle card processing
+  
+  Player Turn
+    > ask for decision
+      - the deck was dealing originally, but hitting is an action
+        performed by a player...and they involve the same
+        logic - a card moves from the deck to the player hand
+          - the issue is who's doing the dealing
+            - what is hitting? hitting is the player asking for 
+              another card
+            - what is dealing? dealing is the dealer dealing a card
+              - in both of these scenarios, a dealer is involved
+                - should the dealer subclass from Player? or
+                  should there be a single player class and a Dealer
+                  class that handles dealing?
+    > I am stuck
+      - how do we handle the hit loop now?
+      - how do we get the player and the deck to interact
+        without creating spaghetti?
+      - 
+                  
       
       
       

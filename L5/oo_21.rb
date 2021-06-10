@@ -103,9 +103,50 @@ We'll start by writing things we wished existed. See below.
 require 'yaml'
 TXT = YAML.load_file('oo_21_yaml.yml')
 
-module Promptable
+module Interactable
+  
+  private
+
+  YES = %w(y yes)
+  YESNO = %w(y yes n no)
+  
+  def clear
+    system 'clear'
+  end
+
+  def continue
+    prompt TXT['continue']
+    STDIN.gets
+  end
+  
+  def format_input(input)
+    input.chomp.downcase.strip
+  end
+  
   def prompt(string)
     puts "=> #{string}"
+  end
+  
+  def space
+    puts ""
+  end
+
+  def yes_no_loop
+    answer = nil
+    loop do
+      answer = format_input(gets)
+      break if yn?(answer)
+      prompt RPS['sorry_yn']
+    end
+    answer
+  end
+  
+  def yes?(input)
+    YES.include?(input)
+  end
+
+  def yn?(input)
+    YESNO.include?(input)
   end
 end
 
@@ -148,9 +189,9 @@ class Card
   attr_accessor :dealt
   
   SUITS = %w(Clubs Hearts Diamonds Spades)
-  NUMBERS = (1..10).to_a
+  NUMS = (1..10).to_a
   FACES = %w(Ace Jack Queen King)
-  VALUES = NUMBERS + FACES
+  VALUES = NUMS + FACES
   
   def initialize(suit, value)
     @suit = suit
@@ -167,12 +208,10 @@ class Card
   end
 end
 
-class Player
-  attr_accessor :hand
+module Handable
+  attr_accessor :hand, :total  
   
-  def initialize
-    @hand = []
-  end
+  MAX_HAND_TOTAL = 21
   
   def join_hand
     case hand.size
@@ -187,26 +226,101 @@ class Player
   def total_hand
     aces, not_aces = hand.partition { |card| card.value == 'Ace' }
     
-    not_aces_total = not_aces.reduce(:+) do |card|
-                       Card::FACES.include?(card.value) ? 10 : card.value
-                     end
+    not_aces_total = add_cards(not_aces)
     
-    puts not_aces_total
+    aces_count = aces.size
+    
+    self.total = add_aces(not_aces_total, aces_count)
   end
   
-  def hit; end
-    
-  def stay; end
-    
-  def busted?; end
+  def add_cards(cards)
+    cards.map do |card| 
+      card.value == card.value.to_s.to_i ? card.value : 10
+    end.sum
+  end
+  
+  def add_aces(not_aces_total, aces_count)
+    loop do
+      break if aces_count == 0
+      ((not_aces_total + 11) > 21) ? not_aces_total += 1 : not_aces_total += 11
+      aces_count -= 1
+    end
+    not_aces_total
+  end
+end
+
+class Player
+  include Handable
+  include Interactable
+  
+  attr_accessor :busted
+  
+  def initialize
+    @hand = []
+    @total = 0
+    @busted = false
+  end
+  
+  def bust_check
+    if total > Handable::MAX_HAND_TOTAL
+      self.busted = true
+    end
+  end
+end
+  
+class Human < Player
+  HIT = %w(h hit)
+  STAY = %w(s stay)
+  
+  def turn(deck)
+    loop do
+      if human_hits?
+        hit(deck)
+        break if busted
+      else
+        stay
+        break
+      end
+    end
+  end
+  
+  def human_hits?
+    choice = nil
+    clear
+    prompt "#{TXT['human_total']} #{total}."
+    space
+    prompt TXT['decision']
+    loop do
+      choice = format_input(gets)
+      break if [HIT, STAY].any? { |inputs| inputs.include?(choice) }
+      prompt TXT['invalid_hs']
+    end
+    HIT.include?(choice)
+  end
+  
+  def hit(deck)
+    clear
+    prompt "You #{TXT['hit']}."
+    deck.deal(self)
+    space
+    prompt "You were dealt #{hand.last}."
+    continue
+    total_hand
+    bust_check
+  end
+  
+  def stay
+    clear
+    prompt "You #{TXT['stay']}."
+    space
+    prompt "#{TXT['human_total']} #{total}."
+  end
 end
 
 class Dealer < Player; end
   
-class Human < Player; end
-
 class Game
-  include Promptable
+  include Interactable
   
   attr_accessor :deck, :human, :dealer
   
@@ -220,9 +334,8 @@ class Game
     greeting
     # ask_name
     loop do
-      deal_initial_hands
-      show_initial_hands
-      human.total_hand
+      first_deal
+      human.turn(deck)
       break
       # show_initial_hands
       # player_turn
@@ -232,15 +345,19 @@ class Game
     end
     # closing
   end
+  
+  private
     
   def greeting
     clear
     prompt TXT['greeting']
-    puts ""
+    space
   end
   
-  def clear
-    system 'clear'
+  def first_deal
+    deal_initial_hands
+    total_initial_hands
+    show_initial_hands
   end
   
   def deal_initial_hands
@@ -248,18 +365,19 @@ class Game
     deck.deal_initial_hand(dealer)
   end
   
-  def show_initial_hands
-    prompt TXT['first_deal']
-    puts ""
-    prompt "#{TXT['human_hand']} #{human.join_hand}."
-    puts TXT['divider']
-    prompt "#{TXT['revealed_card']} #{dealer.hand.sample}."
-    continue
+  def total_initial_hands
+    human.total_hand
+    dealer.total_hand
   end
   
-  def continue
-    prompt TXT['continue']
-    STDIN.gets
+  def show_initial_hands
+    prompt TXT['first_deal']
+    space
+    prompt "#{TXT['human_has']} #{human.join_hand}."
+    space
+    prompt "#{TXT['revealed_card']} #{dealer.hand.sample}."
+    space
+    continue
   end
 end
 
