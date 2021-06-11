@@ -1,105 +1,3 @@
-# Twenty-one is a card game consisting of a dealer and a player, where the participants
-# try to get as close to 21 as possible with their hand total without going over.
-
-=begin
-Game overview:
-- both participants are initially dealt 2 cards from a 52-card deck
-- the player takes the first turn, and can 'hit' or 'stay'
-  - if the player busts, he loses
-  - if the player stays, it's the dealer's turn
-- the dealer takes the second turn, and must hit until his hand total >= 17
-  - if the dealer busts, he loses
-  - if the dealer stays, the turn phase is over
-- if nobody has busted, then the player with the highest hand total wins
-  - if both totals are equal, then it's a tie and nobody wins
-
-Nouns: card, player, dealer, participant, deck, game, total
-Verbs: deal, hit, stay, busts
-
-The "total" is obviously not going to be a class, but is actually an attribute within 
-a class. In other words, it's not a noun that performs actions, but a property of 
-some other noun. You can also think of it as a verb: "calculate_total".
-
-Another thing to note: the verb "busts" is not an action anyone is performing.
-Rather, it's a state -- is the player/dealer 'busted'?
-
-Let's write out the classes and organize the verbs.
-
-Player
-- hit
-- stay
-- busted?
-- total
-Dealer
-- hit
-- stay
-- busted?
-- total
-- deal (should this be here, or in Deck?)
-Participant
-Deck
-- deal (should this be here, or in Dealer?)
-Card
-Game
-- start
-
-First thing to notice is the overlap with the Player and Dealer classes.
-A natural place to extract that overlap is a superclass -- perhaps Participant?
-In their ref. implementation, they use a module called Hand to capture this, but
-this isn't the only way; we can extract to a superclass if desired.
-
-Spike is below
-=end
-
-# class Player
-#   def initialize
-#     # what would the "data" or "states" of a Player object entail?
-#     # maybe cards? a name?
-#   end
-  
-#   def hit; end
-    
-#   def stay; end
-    
-#   def busted?; end
-  
-#   def total
-#     # definitely looks like we need to know about "cards" to produce some total
-#   end
-# end
-
-# class Dealer
-#   # this looks basically the same as player...how do we handle this?
-# end
-
-# class Participant
-#   # what goes here? maybe the shared behaviors of Player and Dealer?
-# end
-
-# class Deck
-#   def initialize
-#     # we need a structure to track cards...hash, array, something else?
-#   end
-  
-#   def deal
-#     # does the deck deal, or the dealer?
-#   end
-# end
-
-# class Card
-#   def initialize
-#     # what are the "states" of a card? interesting...
-#   end
-# end
-
-=begin
-This is obviously just a skeleton and lots of details still need to be fleshed out.
-Let's try taking a stab at Game#start - that will drive our implementation of 
-our other classes.
-
-We'll start by writing things we wished existed. See below.
-=end
-
 require 'yaml'
 TXT = YAML.load_file('oo_21_yaml.yml')
 
@@ -189,7 +87,7 @@ class Card
   attr_accessor :dealt
   
   SUITS = %w(Clubs Hearts Diamonds Spades)
-  NUMS = (1..10).to_a
+  NUMS = (2..10).to_a
   FACES = %w(Ace Jack Queen King)
   VALUES = NUMS + FACES
   
@@ -200,7 +98,7 @@ class Card
   end
   
   def to_s
-    if value == 'Ace' || value == '8'
+    if value == 'Ace' || value == 8
       "an #{value} of #{suit}"
     else
       "a #{value} of #{suit}"
@@ -217,7 +115,7 @@ module Handable
     case hand.size
     when 2 then hand.join(" and ")
     else        
-      prior_to_last = hand[0..-2].join(",")
+      prior_to_last = hand[0..-2].join(", ")
       last = ", and #{hand[-1]}"
       prior_to_last + last
     end
@@ -242,7 +140,7 @@ module Handable
   def add_aces(not_aces_total, aces_count)
     loop do
       break if aces_count == 0
-      ((not_aces_total + 11) > 21) ? not_aces_total += 1 : not_aces_total += 11
+      not_aces_total += (not_aces_total + 11 > 21 ? 1 : 11)
       aces_count -= 1
     end
     not_aces_total
@@ -262,9 +160,8 @@ class Player
   end
   
   def bust_check
-    if total > Handable::MAX_HAND_TOTAL
-      self.busted = true
-    end
+    return unless total > Handable::MAX_HAND_TOTAL
+    self.busted = true
   end
 end
   
@@ -276,6 +173,8 @@ class Human < Player
     loop do
       if human_hits?
         hit(deck)
+        total_hand
+        bust_check
         break if busted
       else
         stay
@@ -285,17 +184,21 @@ class Human < Player
   end
   
   def human_hits?
-    choice = nil
     clear
     prompt "#{TXT['human_total']} #{total}."
     space
     prompt TXT['decision']
+    HIT.include?(hit_or_stay_decision)
+  end
+  
+  def hit_or_stay_decision
+    choice = nil
     loop do
       choice = format_input(gets)
       break if [HIT, STAY].any? { |inputs| inputs.include?(choice) }
       prompt TXT['invalid_hs']
     end
-    HIT.include?(choice)
+    choice
   end
   
   def hit(deck)
@@ -305,21 +208,36 @@ class Human < Player
     space
     prompt "You were dealt #{hand.last}."
     continue
-    total_hand
-    bust_check
   end
   
   def stay
     clear
     prompt "You #{TXT['stay']}."
     space
-    prompt "#{TXT['human_total']} #{total}."
+    prompt "#{TXT['final_total']} #{total}."
+    continue
   end
 end
 
-class Dealer < Player; end
+class Dealer < Player
+  MIN_HAND_TOTAL = 17
   
-class Game
+  def turn(deck)
+    clear
+    prompt "#{TXT['dealer_turn']} #{MIN_HAND_TOTAL}."
+    hit(deck)
+  end
+  
+  def hit(deck)
+    until total >= MIN_HAND_TOTAL
+      deck.deal(self) 
+      total_hand
+    end
+    bust_check
+  end
+end
+  
+class TwentyOneGame
   include Interactable
   
   attr_accessor :deck, :human, :dealer
@@ -335,11 +253,9 @@ class Game
     # ask_name
     loop do
       first_deal
-      human.turn(deck)
+      player_turns
+      puts return_winner
       break
-      # show_initial_hands
-      # player_turn
-      # dealer_turn
       # show_result
       # play_again?
     end
@@ -352,6 +268,7 @@ class Game
     clear
     prompt TXT['greeting']
     space
+    continue
   end
   
   def first_deal
@@ -371,6 +288,7 @@ class Game
   end
   
   def show_initial_hands
+    clear
     prompt TXT['first_deal']
     space
     prompt "#{TXT['human_has']} #{human.join_hand}."
@@ -379,7 +297,30 @@ class Game
     space
     continue
   end
+  
+  def player_turns
+    human.turn(deck)
+    return if human.busted
+    dealer.turn(deck)
+  end
+  
+  def display_winner
+    case return_winner
+    when :dealer then prompt TXT['dealer_won']
+    when :player then prompt TXT['player_won']
+    when :tie    then prompt TXT['tie']
+    end
+  end
+  
+  def return_winner
+    case
+    when human.busted || dealer.total > human.total  then :dealer
+    when dealer.busted || human.total > dealer.total then :human
+    else                                                  :tie
+    end
+  end
+    
 end
 
-game = Game.new
+game = TwentyOneGame.new
 game.start
