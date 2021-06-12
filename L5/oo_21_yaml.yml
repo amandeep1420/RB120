@@ -1,6 +1,6 @@
 name: "What's your name?"
 name_please: "Please enter a name."
-greeting: "Welcome to 21!"
+greeting: "Welcome to 21,"
 points_to_win: "points are needed in order to win the game"
 view_rules: "Would you like to view the rules? (y/n)"
 rules: >
@@ -42,6 +42,7 @@ rules: >
 recap: "Running point totals are as follows:"
 human_points: "Your current point total:"
 dealer_points: "The Dealer's current point total:"
+round: "Let's begin round"
 first_deal: "Initial hands have been dealt!"
 human_has: "You have"
 dealer_has: "The Dealer has"
@@ -94,13 +95,14 @@ dealer_prompts:
     
     
     The Dealer goes about their turn, rapping the table with a knuckle once they've
-    finished (and breaking it in half in the process).
+    finished...and breaking the table in half as a result.
 human_final_total: "Your final hand total is"
 dealer_final_total: "The Dealer's final hand total is"
 dealer_won: "The Dealer won this round!"
-dealer_won_game: "The Dealer"
+dealer_won_game: "The Dealer won the game! Better luck next time!"
 dealer_busted: "The Dealer busted! You won this round!"
 human_won: "You won this round!"
+human_won_game: "won the game! The champion has been crowned! Way to go!"
 human_busted: "You busted! The Dealer won this round!"
 tie: "This round's a tie! Dang!"
 another_round: >

@@ -4,7 +4,7 @@ TXT = YAML.load_file('oo_21_yaml.yml')
 module Interactable
   private
 
-  YES = %w(y yes)
+  YES   = %w(y yes)
   YESNO = %w(y yes n no)
 
   def clear
@@ -28,6 +28,10 @@ module Interactable
     puts ""
   end
 
+  def yes?(input)
+    YES.include?(input)
+  end
+
   def yes_no_loop
     answer = nil
     loop do
@@ -36,10 +40,6 @@ module Interactable
       prompt TXT['sorry_yn']
     end
     answer
-  end
-
-  def yes?(input)
-    YES.include?(input)
   end
 
   def yn?(input)
@@ -52,16 +52,6 @@ class Deck
 
   def initialize
     @cards = generate_deck
-  end
-
-  def generate_deck
-    cards = []
-    Card::SUITS.each do |suit|
-      Card::VALUES.each do |value|
-        cards << Card.new(suit, value)
-      end
-    end
-    cards
   end
 
   def deal(hand)
@@ -79,19 +69,32 @@ class Deck
   def deal_initial_hand(hand)
     2.times { deal(hand) }
   end
+
+  private
+
+  def generate_deck
+    cards = []
+    Card::SUITS.each do |suit|
+      Card::VALUES.each do |value|
+        cards << Card.new(suit, value)
+      end
+    end
+    cards
+  end
 end
 
 class Card
-  attr_reader :suit, :value
-  attr_accessor :dealt
+  attr_accessor :dealt, :suit, :value
 
-  SUITS = %w(Clubs Hearts Diamonds Spades)
-  NUMS = (2..10).to_a
-  FACES = %w(Ace Jack Queen King)
+  SUITS  = %w(Clubs Hearts Diamonds Spades)
+  NUMS   = (2..10).to_a
+  FACES  = %w(Ace Jack Queen King)
   VALUES = NUMS + FACES
 
+  private
+
   def initialize(suit, value)
-    @suit = suit
+    @suit  = suit
     @value = value
     @dealt = false
   end
@@ -130,6 +133,8 @@ module Handable
     self.total = add_aces(not_aces_total, aces_count)
   end
 
+  private
+
   def add_cards(cards)
     cards.map do |card|
       card.value == card.value.to_s.to_i ? card.value : 10
@@ -153,8 +158,8 @@ class Player
   attr_accessor :busted, :points
 
   def initialize
-    @hand = []
-    @total = 0
+    @hand   = []
+    @total  = 0
     @busted = false
     @points = 0
   end
@@ -165,12 +170,12 @@ class Player
   end
 
   def reset_points
-    @points = 0
+    self.points = 0
   end
 
   def reset_hand_and_bust_status
-    @hand = []
-    @busted = false
+    self.hand   = []
+    self.busted = false
   end
 end
 
@@ -185,6 +190,20 @@ class Human < Player
     ask_name
   end
 
+  def final_summary
+    prompt "#{TXT['human_has']} #{join_hand}."
+    prompt "#{TXT['human_final_total']} #{total}."
+  end
+
+  def turn(deck)
+    clear
+    prompt TXT['your_turn']
+    space
+    hit_loop(deck)
+  end
+
+  private
+
   def ask_name
     clear
     prompt TXT['name']
@@ -195,14 +214,6 @@ class Human < Player
       prompt TXT['name_please']
     end
     @name = name
-  end
-
-  def turn(deck)
-    clear
-    prompt TXT['your_turn']
-    space
-    continue
-    hit_loop(deck)
   end
 
   def hit_loop(deck)
@@ -235,8 +246,8 @@ class Human < Player
     prompt "You #{TXT['hit']}."
     deck.deal(hand)
     total_hand
-    bust_check
     prompt "You were dealt #{hand.last}."
+    bust_check
     space
     continue
   end
@@ -247,11 +258,6 @@ class Human < Player
     prompt "#{TXT['human_final_total']} #{total}."
     space
     continue
-  end
-
-  def final_summary
-    prompt "#{TXT['human_has']} #{join_hand}."
-    prompt "#{TXT['human_final_total']} #{total}."
   end
 end
 
@@ -269,34 +275,38 @@ class Dealer < Player
     hit(deck)
   end
 
+  def final_summary
+    prompt "#{TXT['dealer_has']} #{join_hand}."
+    prompt "#{TXT['dealer_final_total']} #{total}."
+  end
+
+  private
+
   def pick_story
     PROMPT_KEYS.sample.to_s
   end
 
   def hit(deck)
     until total >= MIN_HAND_TOTAL
-      deck.deal(hand) 
+      deck.deal(hand)
       total_hand
     end
     bust_check
-  end
-
-  def final_summary
-    prompt "#{TXT['dealer_has']} #{join_hand}."
-    prompt "#{TXT['dealer_final_total']} #{total}."
   end
 end
 
 class TwentyOneGame
   include Interactable
 
-  POINTS_TO_WIN_GAME = 3
+  POINTS_TO_WIN_GAME = 2
 
   def initialize
-    @deck   = Deck.new
-    @human  = Human.new
-    @dealer = Dealer.new
-    @winner = nil
+    @deck           = Deck.new
+    @human          = Human.new
+    @dealer         = Dealer.new
+    @winner         = nil
+    @round          = 1
+    @game_completed = false
   end
 
   def start
@@ -307,11 +317,12 @@ class TwentyOneGame
 
   private
 
-  attr_accessor :deck, :human, :dealer, :winner, :game_completed
+  attr_accessor :deck, :game_completed, :round, :winner
+  attr_reader   :dealer, :human
 
   def welcome_player
     clear
-    prompt TXT['greeting']
+    prompt "#{TXT['greeting']} #{human.name}!"
     prompt "#{POINTS_TO_WIN_GAME} #{TXT['points_to_win']}."
     space
     explain_game if view_rules?
@@ -331,33 +342,23 @@ class TwentyOneGame
 
   def main_game
     loop do
-      reset
       recap
       first_deal
       player_turns
       conclude_round
       break unless play_again?
+      reset
     end
-  end
-
-  def reset
-    clear
-    if game_completed
-      human.reset_points
-      dealer.reset_points
-    end
-
-    human.reset_hand_and_bust_status
-    dealer.reset_hand_and_bust_status
-    @winner = nil
   end
 
   def recap
-    return unless [human, dealer].any? { |player| player.points > 0 }
+    return unless round > 1
     clear
     prompt TXT['recap']
     space
     points_summary
+    space
+    prompt "#{TXT['round']} #{round}!"
     continue
   end
 
@@ -365,7 +366,6 @@ class TwentyOneGame
     prompt "#{TXT['human_points']} #{human.points}"
     space
     prompt "#{TXT['dealer_points']} #{dealer.points}"
-    space
   end
 
   def first_deal
@@ -408,6 +408,7 @@ class TwentyOneGame
     update_player_points
     game_completed_check
     display_round_winner
+    increment_round
     space
     continue
   end
@@ -423,13 +424,13 @@ class TwentyOneGame
 
   def find_round_winner
     if human.busted
-      @winner = dealer
+      self.winner = dealer
     elsif dealer.busted
-      @winner = human 
+      self.winner = human
     elsif dealer.total > human.total
-      @winner = dealer
+      self.winner = dealer
     elsif human.total > dealer.total
-      @winner = human
+      self.winner = human
     end
   end
 
@@ -441,7 +442,7 @@ class TwentyOneGame
   def game_completed_check
     players = [human, dealer]
     return unless players.any? { |player| player.points == POINTS_TO_WIN_GAME }
-    @game_completed = true
+    self.game_completed = true
   end
 
   def display_round_winner
@@ -457,19 +458,67 @@ class TwentyOneGame
     end
   end
 
-  def display_game_winner
-    return unless game_completed
+  def increment_round
+    self.round += 1
   end
-  
+
   def play_again?
     clear
+    if game_completed
+      display_game_winner
+      space
+    end
     prompt(game_completed ? TXT['another_game'] : TXT['another_round'])
     yes?(yes_no_loop)
+  end
+
+  def display_game_winner
+    game_winner = [human, dealer].select do |player|
+                    player.points == POINTS_TO_WIN_GAME
+                  end[0]
+
+    if game_winner == dealer
+      prompt TXT["dealer_won_game"]
+    else
+      prompt "#{human.name} #{TXT['human_won_game']}"
+    end
   end
 
   def goodbye_player
     clear
     prompt "#{TXT['goodbye']} #{human.name}!"
+  end
+
+  def reset
+    clear
+    reset_gamestate if game_completed
+
+    reset_hands_and_bust_statuses
+    reset_deck
+  end
+
+  def reset_gamestate
+    reset_points
+    self.round = 1
+    self.game_completed = false
+  end
+
+  def reset_points
+    human.reset_points
+    dealer.reset_points
+  end
+
+  def reset_hands_and_bust_statuses
+    human.reset_hand_and_bust_status
+    dealer.reset_hand_and_bust_status
+  end
+
+  def reset_winner
+    self.winner = nil
+  end
+
+  def reset_deck
+    self.deck = Deck.new
   end
 end
 
