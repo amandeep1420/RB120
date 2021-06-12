@@ -1,19 +1,111 @@
+name: "What's your name?"
+name_please: "Please enter a name."
 greeting: "Welcome to 21!"
+points_to_win: "points are needed in order to win the game"
+view_rules: "Would you like to view the rules? (y/n)"
+rules: >
+  Overview: using a normal 52-card deck consisting of the 4 suits, your goal is
+  to try to get as close to 21 as possible without going over; if you go over,
+  it's a "bust", and you lose. 
+  
+  
+  Card values: All face cards are worth 10 points; Aces are worth either 11 points 
+  (if your current hand total + 11 is less than or equal to 21) or 1 point (if
+  your current hand total + 11 is greater than 21). Ace values change depending
+  on the contents of your hand; if your hand contains an Ace and you draw a card
+  that pushes your total over 21, that Ace's value is automatically dropped to 1.
+  
+  
+  Setup: the game consists of both you and "The Dealer". You both are initially
+  dealt 2 cards; you're allowed to peek at one of the Dealer's cards during this
+  initial deal.
+  
+  
+  Turns: you will go first. You can decide to either "hit" or "stay"; a "hit"
+  means that you will ask for another card; "stay" means that you would no longer
+  like to draw cards, concluding your turn. You are able to "hit" as many times
+  as you'd like, so long as you don't "bust". 
+  Once your turn has concluded, the Dealer will begin their turn. The Dealer
+  must keep hitting until their hand total is at least 17. If the Dealer
+  busts, you automatically win.
+  
+  
+  Conclusion: if either player has busted, then the other is automatically
+  declared the winner; if neither has busted, then both players' hand totals
+  are compared once they are done hitting to find the hand with the highest
+  total. The player with the higher hand total is awarded a point; the winner
+  of the game is whoever can reach the specified point threshold for winning
+  first.
+  
+  
+  You're up to speed - let's begin the game!
+recap: "Running point totals are as follows:"
+human_points: "Your current point total:"
+dealer_points: "The Dealer's current point total:"
 first_deal: "Initial hands have been dealt!"
 human_has: "You have"
+dealer_has: "The Dealer has"
 human_total: "Your current hand total is"
-final_total: "Your final hand total is"
 revealed_card: "The revealed card from The Dealer's hand is"
-divider: "----------------------------------------"
 continue: "Press ENTER to continue"
 your_turn: "Your turn will now begin."
 decision: "Would you like to hit/h or stay/s?"
-invalid_hs: "Invalid input. Please enter hit/h or stay/s."
 hit: "chose to hit"
 stay: "chose to stay"
+invalid_hs: "Invalid input. Please enter hit/h or stay/s."
+concluded: "The round has reached its end."
 dealer_turn: >-
   The Dealer's turn will now begin; they will continue hitting until
   their hand total reaches a minimum of
-dealer_won: "The Dealer won this game! Better luck next time!"
-human_won: "You won this game! Congratulations!"
-tie: "This game's a tie! Dang!"
+dealer_prompts:
+  sneaky: >
+    The Dealer furtively watches you, catching a moment when you glance away;
+    they then slip a card out of their sleeve, tuck it into their hand, smirk, and
+    rap the table with a knuckle to signal the conclusion of their turn. You look
+    back at the dealer, none the wiser.
+  honest: >
+    The Dealer dutifully goes about their turn after demonstrating a distinct lack
+    of cards in their sleeves, pockets, gloves, hat, and moustache. You find yourself
+    admiring the sheer professionalism and integrity at display. The Dealer then raps
+    the table with a knuckle to signal the conclusion of their turn, and you can't
+    help but feel a sense of wistfulness at the thought that you'll soon part ways.
+  lazy: >
+    The Dealer yawns, rubs their eyes, and goes on their phone. Another dealer walks over
+    and sighs. "Again?", they say. The new Dealer sits down."Look at me; I am the Dealer
+    now.", they whisper. The new Dealer (now known as "The Dealer") dutifully goes about
+    their turn, rapping the table with a knuckle once they've finished. You wonder how
+    the first Dealer still has a job.
+  goofy: >
+    The Dealer attempts to start their turn, but slips on a banana peel instead; their pants
+    fly off, a coconut creme pie smashes them in the face, and they accidentally send
+    $20,000,000 to a Nigerian prince. Eventually, they sort themselves out and go about
+    their turn, rapping the table with a knuckle once they've finished.
+    
+    
+    You wonder how they managed to slip on a banana peel while sitting.
+  anime: >
+    The Dealer stands up, assumes a power stance, and starts yelling loudly. Before you
+    have a chance to question what's going on, the room starts to shake. The walls crack,
+    cards start to lift off the table, and lightning roars in the distance. You notice
+    the Dealer's hair and eyes flashing yellow and blue, respectively. Just when you
+    start to think that the room will collapse, the Dealer finishes their yelling and
+    sits back down, their hair and eyes now fully transformed. You can barely withstand
+    their aura.
+    
+    
+    The Dealer goes about their turn, rapping the table with a knuckle once they've
+    finished (and breaking it in half in the process).
+human_final_total: "Your final hand total is"
+dealer_final_total: "The Dealer's final hand total is"
+dealer_won: "The Dealer won this round!"
+dealer_won_game: "The Dealer"
+dealer_busted: "The Dealer busted! You won this round!"
+human_won: "You won this round!"
+human_busted: "You busted! The Dealer won this round!"
+tie: "This round's a tie! Dang!"
+another_round: >
+  Would you like to play another round? We still need to find a winner for this
+  game! (y/n)
+another_game: "Would you like to start another game? (y/n)"
+sorry_yn: "Invalid input; please enter a 'y' for yes or an 'n' for no."
+goodbye: "Thank you for playing! Have a great day,"
