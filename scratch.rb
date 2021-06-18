@@ -1,26 +1,18 @@
-class GoodDog
-end
+class Person
+  attr_accessor :name
 
-class HumanBeing
-end
-
-sparky = GoodDog.new
-
-bob = HumanBeing.new
-
-module Speak
-  def speak(sound)
-    puts sound
+  def initialize(name)
+    @name = name
+  end
+  
+  def change_name
+    p name
+    name = 1
+    p name
   end
 end
 
-class GoodDog
-  include Speak
-end
-
-class HumanBeing
-  include Speak
-end
-
-sparky.speak('meow')
-bob.speak('heh')
+bob = Person.new('Bob')
+p bob.name 
+bob.change_name
+p bob.name
