@@ -11,7 +11,7 @@ class GuessingGame
   def play
     loop do
       guess
-      break if @guesses == 0 || @won
+      break if out_of_guesses || won?
     end
     won_check
   end
@@ -63,6 +63,14 @@ class GuessingGame
   
   def won_check
     @won ? (puts "You won!") : (puts "You have no more guesses. You lost!")
+  end
+  
+  def won?
+    @won
+  end
+  
+  def out_of_guesses
+    @guesses == 0
   end
 end
 
