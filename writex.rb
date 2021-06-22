@@ -391,3 +391,10 @@ end
 JudoClub.new.start_match #=> able to respond to start_match
 Referee.new.start_match  #=> able to respond to start_match
 Judoka.new.start_match   #=> able to respond to start_match
+
+#fake operators
+#equality
+#truthiness
+
+#collaborator objects
+
