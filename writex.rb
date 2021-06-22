@@ -393,8 +393,107 @@ Referee.new.start_match  #=> able to respond to start_match
 Judoka.new.start_match   #=> able to respond to start_match
 
 #fake operators
+#most operators in Ruby are actually fake and use syntactical sugar to look like operators - see below
+1 + 1 == 1.+(1)
+
+#a bunch of custom-defined fake operators, below
+class Person
+  attr_accessor :age, :family, :salary
+  
+  def initialize(age, salary)
+    @age = age
+    @family = []
+    @salary = salary
+  end
+  
+  def ==(other_person)
+    age == other_person.age
+  end
+  
+  def +(other_person)
+    family << other_person
+  end
+  
+  def >(other_person)
+    salary > other_person.salary
+  end
+  
+  def <<(other_person)
+    Person.new(0, 0)
+  end
+end
+
+jeff      = Person.new(22, 50000)
+genevieve = Person.new(24, 200000)
+
+puts jeff == genevieve #=> false
+
+jeff + genevieve
+p jeff.family          #=> [genevieve]
+
+puts genevieve > jeff  #=> true
+
+puts genevieve << jeff #=> #<Person:0x.... @age=0, @salary=0>
+
+
 #equality
+#== tests for equivalence of value
+str1 = 'cat'
+str2 = 'cat'
+str1 == str2 #=> true
+
+#equal? tests for equivalence of referenced object
+str1 = 'cat'
+str2 = 'cat'
+
+str1_copy = str1
+str1.equal? str1_copy #=> true
+str1.equal? str2      #=> false
+
+#eql? tests for both...but eh
+#we define custom == methods for custom classes
+
+#self - what it means
+#within an instance method, self refers to the calling object; outside of an instance method, self refers to the class itself
+class Dog
+  def what_am_i
+    puts self
+  end
+  
+  puts self
+end
+# automatically outputs Dog and returns nil when running the code
+
+Dog.new.what_am_i
+# outputs the memory address of the Dog object that was just instantiated
+
+# we use self when referencing a setter method within an instance method; if we don't, Ruby will think we're trying to initialize or 
+# reassign a local variable
+class Dog
+  attr_accessor :eye_color
+  
+  def initialize(color)
+    @eye_color = color
+  end
+  
+  def change_eye_color(color)
+    eye_color = color
+  end
+  
+  def actually_change_eye_color(color)
+    self.eye_color = color
+  end
+end
+
+bowser = Dog.new('green')
+bowser.change_eye_color('brown') #=> returns 'brown'
+bowser.eye_color #=> 'green'
+bowser.actually_change_eye_color('brown') #=> returns 'brown'
+bowser.eye_color #=> 'brown'
+
+
 #truthiness
+# not sure what they mean by this in the context of OO - ask tomorrow?
 
 #collaborator objects
-
+# collaborator object = any object assigned to an attribute in another object
